@@ -12,6 +12,7 @@ CODE_LINE_REGEX = re.compile(
         instructions.MIN_INSTRUCTION_LEN,
         instructions.MAX_INSTRUCTION_LEN))
 BLANK_LINE_REGEX = re.compile(r'^\s*(?:#.*)?$')
+LABEL_LINE_REGEX = re.compile(r'^\s*([-A-Za-z0-9_]+)\s*:\s*(?:#.*)?$')
 
 BINARY_TO_WHITESPACE_TABLE = str.maketrans('01', ' \t')
 
@@ -48,15 +49,21 @@ def compiler(instream, outstream):
             continue
 
         match = CODE_LINE_REGEX.match(line)
-        if not match:
-            print('{}:{}: Unparsable line "{}"'.format(instream.name,
-                                                       lineno,
-                                                       line.strip()),
-                  file=sys.stderr)
-            errors = True
-            continue
+        if match:
+            instruction_label, param = match.groups()
+        else:
+            match = LABEL_LINE_REGEX.match(line)
+            if match:
+                instruction_label = 'LABEL'
+                param = match.groups()[0]
+            else:
+                print('{}:{}: Unparsable line "{}"'.format(instream.name,
+                                                           lineno,
+                                                           line.strip()),
+                      file=sys.stderr)
+                errors = True
+                continue
 
-        instruction_label, param = match.groups()
 
         try:
             instruction = instructions.INSTRUCTIONS[instruction_label]
