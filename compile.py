@@ -39,29 +39,69 @@ def label_generator():
             yield ''.join(string) + '\n'
 
 
-def compiler(instream, outstream):
+def compiler(instream, instream_name, outstream):
     labels = defaultdict(label_generator().__next__)
+    errors = False
     for lineno, line in enumerate(instream, start=1):
         if BLANK_LINE_REGEX.match(line):
             continue
+
         match = CODE_LINE_REGEX.match(line)
         if not match:
-            raise RuntimeError(
-                'Compile error: line {}: "{}"'.format(lineno, line.strip()))
+            print('{}:{}: Unparsable line "{}"'.format(instream_name,
+                                                       lineno,
+                                                       line.strip()),
+                  file=sys.stderr)
+            errors = True
+            continue
+
         instruction_label, param = match.groups()
-        instruction = instructions.INSTRUCTIONS[instruction_label]
+
+        try:
+            instruction = instructions.INSTRUCTIONS[instruction_label]
+        except KeyError:
+            print('{}:{}: Unrecognized instruction "{}"'.format(
+                    instream_name,
+                    lineno,
+                    instruction_label),
+                  file=sys.stderr)
+            errors = True
+            continue
+
         if instruction.has_number:
-            param = int_to_whitespace(int(param))
+            try:
+                num = int(param)
+            except ValueError:
+                print('{}:{}: Unparsable number "{}"'.format(instream_name,
+                                                             lineno,
+                                                             param),
+                      file=sys.stderr)
+                errors = True
+                continue
+            param = int_to_whitespace(num)
+
         elif instruction.has_label:
             param = labels[param]
+
         elif param:
-            raise RuntimeError(
-                'Unexpected parameter {} to instruction {}'.format(
-                    param, instruction_label))
+            print('{}:{}: Unexpected parameter "{}" to {}'.format(
+                    instream_name,
+                    lineno,
+                    param,
+                    instruction_label),
+                  file=sys.stderr)
+            errors = True
+            continue
+
         outstream.write(instruction.tokens)
         if param:
             outstream.write(param)
 
+    if errors:
+        return 1
+    else:
+        return 0
+
 
 if __name__ == '__main__':
-    compiler(sys.stdin, sys.stdout)
+    sys.exit(compiler(sys.stdin, '-', sys.stdout))
