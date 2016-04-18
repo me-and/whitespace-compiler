@@ -39,9 +39,9 @@ def label_generator():
             yield ''.join(string) + '\n'
 
 
-if __name__ == '__main__':
+def compiler(instream, outstream):
     labels = defaultdict(label_generator().__next__)
-    for lineno, line in enumerate(sys.stdin, start=1):
+    for lineno, line in enumerate(instream, start=1):
         if BLANK_LINE_REGEX.match(line):
             continue
         match = CODE_LINE_REGEX.match(line)
@@ -58,6 +58,10 @@ if __name__ == '__main__':
             raise RuntimeError(
                 'Unexpected parameter {} to instruction {}'.format(
                     param, instruction_label))
-        sys.stdout.write(instruction.tokens)
+        outstream.write(instruction.tokens)
         if param:
-            sys.stdout.write(param)
+            outstream.write(param)
+
+
+if __name__ == '__main__':
+    compiler(sys.stdin, sys.stdout)
