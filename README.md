@@ -1,6 +1,6 @@
 A simple compiler for [Whitespace][], for compiling from something that looks vaguely like assembly language into Whitespace.
 
-Instructions are as follows:
+Instructions are as follows, one per line:
 
 *   Stack manipulation:
     *   `PUSH <num>`: Push `<num>` onto the stack.
@@ -17,7 +17,7 @@ Instructions are as follows:
     *   `STORE`: Store.
     *   `RETRV`: Retrieve.
 *   Flow control:
-    *   `LABEL <label>`: Mark a location in the program.
+    *   `<label>:` or `LABEL <label>`: Mark a location in the program.
     *   `GOSUB <label>`: Call a subroutine.
     *   `JMP <label>`: Jump unconditionally to a label.
     *   `JEZ <label>`: Jump to a label if the top of the stack is zero.
