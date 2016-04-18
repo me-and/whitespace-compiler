@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import argparse
 from collections import defaultdict
 from itertools import count, product
 import re
@@ -39,7 +40,7 @@ def label_generator():
             yield ''.join(string) + '\n'
 
 
-def compiler(instream, instream_name, outstream):
+def compiler(instream, outstream):
     labels = defaultdict(label_generator().__next__)
     errors = False
     for lineno, line in enumerate(instream, start=1):
@@ -48,7 +49,7 @@ def compiler(instream, instream_name, outstream):
 
         match = CODE_LINE_REGEX.match(line)
         if not match:
-            print('{}:{}: Unparsable line "{}"'.format(instream_name,
+            print('{}:{}: Unparsable line "{}"'.format(instream.name,
                                                        lineno,
                                                        line.strip()),
                   file=sys.stderr)
@@ -61,7 +62,7 @@ def compiler(instream, instream_name, outstream):
             instruction = instructions.INSTRUCTIONS[instruction_label]
         except KeyError:
             print('{}:{}: Unrecognized instruction "{}"'.format(
-                    instream_name,
+                    instream.name,
                     lineno,
                     instruction_label),
                   file=sys.stderr)
@@ -72,7 +73,7 @@ def compiler(instream, instream_name, outstream):
             try:
                 num = int(param)
             except ValueError:
-                print('{}:{}: Unparsable number "{}"'.format(instream_name,
+                print('{}:{}: Unparsable number "{}"'.format(instream.name,
                                                              lineno,
                                                              param),
                       file=sys.stderr)
@@ -85,7 +86,7 @@ def compiler(instream, instream_name, outstream):
 
         elif param:
             print('{}:{}: Unexpected parameter "{}" to {}'.format(
-                    instream_name,
+                    instream.name,
                     lineno,
                     param,
                     instruction_label),
@@ -103,5 +104,22 @@ def compiler(instream, instream_name, outstream):
         return 0
 
 
+def main(argv=None):
+    if argv is None:
+        argv = sys.argv
+
+    parser = argparse.ArgumentParser(
+        description="Compile code into Whitespace",
+        epilog="See README.md for the code syntax")
+    parser.add_argument("-o", type=argparse.FileType('w'), dest="outstream",
+                        metavar="<ofile>", help="specify output destination",
+                        default=sys.stdout)
+    parser.add_argument("instream", type=argparse.FileType('r'),
+                        metavar="<ifile>", help="specify input file")
+
+    args = parser.parse_args(argv[1:])
+    return compiler(args.instream, args.outstream)
+
+
 if __name__ == '__main__':
-    sys.exit(compiler(sys.stdin, '-', sys.stdout))
+    sys.exit(main())
