@@ -6,11 +6,11 @@ import sys
 
 import instructions
 
-COMPILE_REGEX = re.compile(
+CODE_LINE_REGEX = re.compile(
     r'^\s*([A-Za-z]{{{},{}}})(?:\s+([-A-Za-z0-9_]+))?\s*(?:#.*)?$'.format(
         instructions.MIN_INSTRUCTION_LEN,
         instructions.MAX_INSTRUCTION_LEN))
-WHITESPACE_REGEX = re.compile(r'^\s*(?:#.*)?$')
+BLANK_LINE_REGEX = re.compile(r'^\s*(?:#.*)?$')
 
 BINARY_TO_WHITESPACE_TABLE = str.maketrans('01', ' \t')
 
@@ -39,9 +39,9 @@ def label_generator(length=None):
 if __name__ == '__main__':
     labels = defaultdict(label_generator().__next__)
     for lineno, line in enumerate(sys.stdin, start=1):
-        if WHITESPACE_REGEX.match(line):
+        if BLANK_LINE_REGEX.match(line):
             continue
-        match = COMPILE_REGEX.match(line)
+        match = CODE_LINE_REGEX.match(line)
         if not match:
             raise RuntimeError(
                 'Compile error: line {}: "{}"'.format(lineno, line.strip()))
