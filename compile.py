@@ -16,17 +16,24 @@ BINARY_TO_WHITESPACE_TABLE = str.maketrans('01', ' \t')
 
 
 def int_to_whitespace(num):
+    '''Convert an integer to whitespace.'''
     if num >= 0:
-        return ' ' + pos_int_to_whitespace(num) + '\n'
+        return ' ' + _pos_int_to_whitespace(num) + '\n'
     else:
-        return '\t' + pos_int_to_whitespace(-num) + '\n'
+        return '\t' + _pos_int_to_whitespace(-num) + '\n'
 
 
-def pos_int_to_whitespace(num):
+def _pos_int_to_whitespace(num):
+    '''Convert a positive integer to whitespace.
+
+    Does not include the leading space/tab to indicate sign, nor the trailing
+    newline.
+    '''
     return bin(num)[2:].translate(BINARY_TO_WHITESPACE_TABLE)
 
 
 def label_generator():
+    '''Generate whitespace labels.'''
     for length in count(1):
         for string in product(' \t', repeat=length):
             yield ''.join(string) + '\n'
