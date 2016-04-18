@@ -26,14 +26,10 @@ def pos_int_to_whitespace(num):
     return bin(num)[2:].translate(BINARY_TO_WHITESPACE_TABLE)
 
 
-def label_generator(length=None):
-    if length:
+def label_generator():
+    for length in count(1):
         for string in product(' \t', repeat=length):
             yield ''.join(string) + '\n'
-    else:
-        for length in count(1):
-            for string in label_generator(length):
-                yield string
 
 
 if __name__ == '__main__':
