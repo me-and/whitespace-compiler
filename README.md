@@ -30,7 +30,7 @@ Instructions are as follows:
     *   `GETC`: Read a character and place it in the location given by the top of the stack.
     *   `GETN`: Read a number and place it in the location given by the top of the stack.
 
-Labels can be arbitrary strings of alphanumeric characters, plus `-` and `_`; the compiler will automatically convert them to Whitespace labels.  Numbers should be decimal, optionally preceded by `+` or `-`.
+Labels can be arbitrary strings of alphanumeric characters, plus `-` and `_`; the compiler will automatically convert them to Whitespace labels.  Numbers should be decimal, optionally preceded by `-`.
 
 Thus the annotated example given at the bottom of [the Whitespace homepage][Whitespace] is as follows:
 
